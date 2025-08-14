@@ -10,6 +10,7 @@ const MobileMenu = dynamic(() => import("@/components/MobileMenu"), { ssr: false
 const GTAHero = dynamic(() => import("@/components/hero/GTAHero"));
 const StoryStrip = dynamic(() => import("@/components/story/StoryStrip"));
 const ParallaxGrid = dynamic(() => import("@/components/products/ParallaxGrid"));
+const StickyLookbook = dynamic(() => import("@/components/lookbook/StickyLookbook"));
 const StoryStripV3 = dynamic(() => import("@/components/sections/StoryStripV3"));
 const LookbookRailV4 = dynamic(() => import("@/components/sections/LookbookRailV4"));
 const BackRevealV3 = dynamic(() => import("@/components/sections/BackRevealV3"));
@@ -106,6 +107,9 @@ export default function Page() {
         
         {/* Product Parallax Grid */}
         <ParallaxGrid />
+        
+        {/* Sticky Lookbook - horizontal scrub */}
+        <StickyLookbook />
         
         {/* Transition divider */}
         <div className="relative h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />

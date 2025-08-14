@@ -55,6 +55,33 @@ export const PRODUCT_CARDS = [
   }
 ];
 
+export const LOOKBOOK_FRAMES = [
+  {
+    image: "/stock/look01.jpg",
+    label: "Editorial night vibes"
+  },
+  {
+    image: "/stock/look02.jpg", 
+    label: "Studio precision"
+  },
+  {
+    image: "/stock/look03.jpg",
+    label: "Urban aesthetic"
+  },
+  {
+    image: "/stock/look04.jpg",
+    label: "Heavyweight comfort"
+  },
+  {
+    image: "/stock/look05.jpg",
+    label: "Shadow play"
+  },
+  {
+    image: "/stock/look06.jpg",
+    label: "Borderline energy"
+  }
+];
+
 export const STOCK_IMAGES = {
   hero: "/stock/hero.jpg",
   lookbook: [
