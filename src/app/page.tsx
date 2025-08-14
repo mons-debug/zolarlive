@@ -11,6 +11,7 @@ const GTAHero = dynamic(() => import("@/components/hero/GTAHero"));
 const StoryStrip = dynamic(() => import("@/components/story/StoryStrip"));
 const ParallaxGrid = dynamic(() => import("@/components/products/ParallaxGrid"));
 const StickyLookbook = dynamic(() => import("@/components/lookbook/StickyLookbook"));
+const BuyBar = dynamic(() => import("@/components/commerce/BuyBar"), { ssr: false });
 const StoryStripV3 = dynamic(() => import("@/components/sections/StoryStripV3"));
 const LookbookRailV4 = dynamic(() => import("@/components/sections/LookbookRailV4"));
 const BackRevealV3 = dynamic(() => import("@/components/sections/BackRevealV3"));
@@ -131,6 +132,9 @@ export default function Page() {
         
         <OrderV2 />
       </main>
+      
+      {/* Floating Buy Bar */}
+      {isClient && <BuyBar />}
       
       {/* Sticky order bar */}
       <StickyOrderBar
