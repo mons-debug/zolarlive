@@ -2,24 +2,25 @@
 import Image from "next/image";
 import { useEffect, useRef } from "react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { product } from "@/content/product";
 
 const chapters = [
   {
     title: "CUT & WEIGHT",
-    description: "Precision engineered with 240 GSM heavyweight cotton. Built for those who demand more.",
-    image: "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=1600&h=1200&fit=crop&q=85",
+    description: product.copy.features[0].description,
+    image: product.images.features.weight, // local /public/stock
     alt: "Fabric texture detail"
   },
   {
     title: "DETAILS THAT LAST",
-    description: "Reinforced seams. Double-stitch construction. Built for the grind.",
-    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&h=1200&fit=crop&q=85",
+    description: product.copy.features[1].description,
+    image: product.images.features.details,
     alt: "Seam stitch detail"
   },
   {
     title: "BORDERLINE ENERGY",
-    description: "Where streetwear meets technical precision. No compromise.",
-    image: "https://images.unsplash.com/photo-1542744173-05336fcc7ad4?w=1600&h=1200&fit=crop&q=85",
+    description: product.copy.features[2].description,
+    image: product.images.features.energy,
     alt: "Print detail"
   }
 ];

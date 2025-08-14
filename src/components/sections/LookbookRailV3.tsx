@@ -2,39 +2,20 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { product } from "@/content/product";
 
-const lookbookImages = [
-  {
-    src: "https://images.unsplash.com/photo-1529720317453-c8da503f2051?w=1200&h=1600&fit=crop&q=85",
-    alt: "Streetwear editorial night look",
-    caption: "Editorial night vibes"
-  },
-  {
-    src: "https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=1200&h=1600&fit=crop&q=85",
-    alt: "Fashion studio black model",
-    caption: "Studio precision"
-  },
-  {
-    src: "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1200&h=1600&fit=crop&q=85",
-    alt: "Urban street model",
-    caption: "Urban aesthetic"
-  },
-  {
-    src: "https://images.unsplash.com/photo-1490578474895-699cd4e2cf59?w=1200&h=1600&fit=crop&q=85",
-    alt: "Hoodie streetwear style",
-    caption: "Heavyweight comfort"
-  },
-  {
-    src: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=1200&h=1600&fit=crop&q=85",
-    alt: "T-shirt street shadow",
-    caption: "Shadow play"
-  },
-  {
-    src: "https://images.unsplash.com/photo-1516257984-b1b4d707412e?w=1200&h=1600&fit=crop&q=85",
-    alt: "Denim streetwear editorial",
-    caption: "Borderline energy"
-  }
-];
+const lookbookImages = product.images.lookbook.map((src, i) => ({
+  src,
+  alt: `Lookbook ${i + 1}`,
+  caption: [
+    "Editorial night vibes",
+    "Studio precision",
+    "Urban aesthetic",
+    "Heavyweight comfort",
+    "Shadow play",
+    "Borderline energy",
+  ][i] || "Borderline"
+}));
 
 export default function LookbookRailV3() {
   const root = useRef<HTMLDivElement>(null);

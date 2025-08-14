@@ -15,6 +15,12 @@ export default function Smooth({ children }: PropsWithChildren) {
       wheelMultiplier: 1,
     });
 
+    // iOS Safari fix: update on viewport resize (address bar expand/collapse)
+    const resizeObserver = new ResizeObserver(() => {
+      ScrollTrigger.refresh();
+    });
+    resizeObserver.observe(document.documentElement);
+
     // Bridge Lenis with GSAP ScrollTrigger to avoid desync/black gaps
     lenis.on('scroll', ScrollTrigger.update);
     function raf(t: number) {
@@ -25,6 +31,7 @@ export default function Smooth({ children }: PropsWithChildren) {
 
     return () => {
       lenis.destroy();
+      resizeObserver.disconnect();
       ScrollTrigger?.killAll?.();
     };
   }, []);
