@@ -34,6 +34,27 @@ export const STORY_BEATS = [
   }
 ];
 
+export const PRODUCT_CARDS = [
+  {
+    image: "/stock/look01.jpg",
+    title: "Front View",
+    kicker: "Clean lines, perfect fit",
+    cta: "Explore Cut"
+  },
+  {
+    image: "/stock/feature-stitch.jpg", 
+    title: "Detail Focus",
+    kicker: "Crafted to last",
+    cta: "View Details"
+  },
+  {
+    image: "/stock/look03.jpg",
+    title: "Lifestyle",
+    kicker: "Streetwear elevated",
+    cta: "See Style"
+  }
+];
+
 export const STOCK_IMAGES = {
   hero: "/stock/hero.jpg",
   lookbook: [
