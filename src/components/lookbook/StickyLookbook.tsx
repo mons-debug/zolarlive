@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState, useCallback } from "react";
 import Image from "next/image";
-import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { gsap, ScrollTrigger, prefersReducedMotion, createMediaContext, cleanupScrollTriggers } from "@/lib/gsap";
 import { LOOKBOOK_FRAMES } from "@/data/assets";
 
 interface LookbookFrame {
@@ -21,9 +21,7 @@ export default function StickyLookbook({
   const [activeFrame, setActiveFrame] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
   
-  // Environment flags
-  const debugScroll = typeof window !== 'undefined' && process.env.NEXT_PUBLIC_DEBUG_SCROLL === 'true';
-  const forceMotion = typeof window !== 'undefined' && process.env.NEXT_PUBLIC_FORCE_MOTION === 'true';
+
 
   // SSR-safe mount
   useEffect(() => {
@@ -36,19 +34,36 @@ export default function StickyLookbook({
     const el = root.current;
     const container = containerRef.current;
     const isMobile = window.innerWidth < 768;
+    const mm = createMediaContext();
     
     // Mobile: reduce to 4 frames, smaller stick duration
     const displayFrames = isMobile ? frames.slice(0, 4) : frames;
     const totalFrames = displayFrames.length;
     const stickDuration = isMobile ? "+=80%" : "+=100%"; // Smaller duration on mobile
 
-    // Check for reduced motion unless forced
-    const prefersReduced = !forceMotion && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Check for reduced motion
+    const isReducedMotion = prefersReducedMotion();
 
-    if (prefersReduced) {
-      // Static state for reduced motion
-      gsap.set(container, { x: 0 });
-      return;
+    if (isReducedMotion) {
+      // Simple fade sequence for reduced motion
+      const frameElements = gsap.utils.toArray<HTMLElement>(el.querySelectorAll('.lookbook-frame'));
+      frameElements.forEach((frame, i) => {
+        gsap.fromTo(frame,
+          { opacity: 0, scale: 0.95 },
+          {
+            opacity: 1,
+            scale: 1,
+            duration: 0.8,
+            delay: i * 0.2,
+            scrollTrigger: {
+              trigger: frame,
+              start: "top 80%",
+              toggleActions: "play none none reverse"
+            }
+          }
+        );
+      });
+      return () => cleanupScrollTriggers(mm);
     }
 
     // Set container width for horizontal scroll
@@ -84,11 +99,8 @@ export default function StickyLookbook({
       ease: "none"
     });
 
-    return () => {
-      tl.kill();
-      ScrollTrigger.getAll().forEach(st => st.kill());
-    };
-  }, [frames, debugScroll, forceMotion]);
+    return () => cleanupScrollTriggers(mm);
+  }, [frames]);
 
   useEffect(() => {
     if (!isMounted) return;
@@ -123,6 +135,7 @@ export default function StickyLookbook({
     <section 
       ref={root} 
       className="relative min-h-screen bg-black overflow-hidden"
+      style={{ minHeight: "100vh" }} // Explicit height for pinning
     >
       {/* Horizontal container */}
       <div 
@@ -133,7 +146,7 @@ export default function StickyLookbook({
         {displayFrames.map((frame, i) => (
           <div
             key={i}
-            className="relative flex-shrink-0 w-screen h-full"
+            className="lookbook-frame relative flex-shrink-0 w-screen h-full"
           >
             {/* Background image */}
             <Image

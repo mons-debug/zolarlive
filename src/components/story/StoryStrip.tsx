@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState, useCallback } from "react";
 import Image from "next/image";
-import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { gsap, ScrollTrigger, prefersReducedMotion, createMediaContext, cleanupScrollTriggers } from "@/lib/gsap";
 import { STORY_BEATS } from "@/data/assets";
 
 interface StoryBeat {
@@ -21,9 +21,7 @@ export default function StoryStrip({
   const root = useRef<HTMLDivElement>(null);
   const [isMounted, setIsMounted] = useState(false);
   
-  // Environment flags
-  const debugScroll = typeof window !== 'undefined' && process.env.NEXT_PUBLIC_DEBUG_SCROLL === 'true';
-  const forceMotion = typeof window !== 'undefined' && process.env.NEXT_PUBLIC_FORCE_MOTION === 'true';
+
 
   // SSR-safe mount
   useEffect(() => {
@@ -37,15 +35,30 @@ export default function StoryStrip({
     const beats = gsap.utils.toArray<HTMLElement>(el.querySelectorAll('.story-beat'));
     const captions = gsap.utils.toArray<HTMLElement>(el.querySelectorAll('.story-caption'));
     const images = gsap.utils.toArray<HTMLElement>(el.querySelectorAll('.story-image'));
+    const mm = createMediaContext();
 
-    // Check for reduced motion unless forced
-    const prefersReduced = !forceMotion && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Check for reduced motion
+    const isReducedMotion = prefersReducedMotion();
 
-    if (prefersReduced) {
-      // Static state for reduced motion
-      gsap.set(beats, { opacity: 1 });
-      gsap.set(captions, { opacity: 1 });
-      return;
+    if (isReducedMotion) {
+      // Simple sequential fades for reduced motion
+      captions.forEach((caption, i) => {
+        gsap.fromTo(caption,
+          { opacity: 0, y: 20 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            delay: i * 0.3,
+            scrollTrigger: {
+              trigger: caption,
+              start: "top 80%",
+              toggleActions: "play none none reverse"
+            }
+          }
+        );
+      });
+      return () => cleanupScrollTriggers(mm);
     }
 
     // Main timeline with pinning
@@ -56,9 +69,6 @@ export default function StoryStrip({
         end: "+=220%", // 220% duration as requested
         scrub: 1,
         pin: true,
-        pinSpacing: true, // Smooth handoff
-        anticipatePin: 1, // Prevents jump
-        markers: debugScroll,
         invalidateOnRefresh: true,
       }
     });
@@ -147,11 +157,8 @@ export default function StoryStrip({
       }
     });
 
-    return () => {
-      tl.kill();
-      ScrollTrigger.getAll().forEach(st => st.kill());
-    };
-  }, [items, debugScroll, forceMotion]);
+    return () => cleanupScrollTriggers(mm);
+  }, [items]);
 
   useEffect(() => {
     if (!isMounted) return;
@@ -183,6 +190,7 @@ export default function StoryStrip({
     <section 
       ref={root} 
       className="relative min-h-screen bg-black overflow-hidden"
+      style={{ minHeight: "220vh" }} // Explicit height for 220% pin duration
     >
       {/* Edge fades - top/bottom black gradients */}
       <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-black via-black/80 to-transparent z-20 pointer-events-none" />

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState, useCallback } from "react";
 import Image from "next/image";
-import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { gsap, ScrollTrigger, prefersReducedMotion, createMediaContext, cleanupScrollTriggers } from "@/lib/gsap";
 import { HERO_MEDIA } from "@/data/assets";
 
 interface GTAHeroProps {
@@ -28,9 +28,7 @@ export default function GTAHero({
   const [isMounted, setIsMounted] = useState(false);
   const [isVideo] = useState(mediaSrc.includes('.mp4') || mediaSrc.includes('.webm'));
 
-  // Environment flags
-  const debugScroll = typeof window !== 'undefined' && process.env.NEXT_PUBLIC_DEBUG_SCROLL === 'true';
-  const forceMotion = typeof window !== 'undefined' && process.env.NEXT_PUBLIC_FORCE_MOTION === 'true';
+
 
   // SSR-safe mount
   useEffect(() => {
@@ -43,16 +41,21 @@ export default function GTAHero({
     const el = root.current;
     const logo = logoRef.current;
     const mask = maskRef.current;
+    const mm = createMediaContext();
 
-    // Check for reduced motion unless forced
-    const prefersReduced = !forceMotion && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Check for reduced motion
+    const isReducedMotion = prefersReducedMotion();
     const isMobile = window.innerWidth < 768;
 
-    if (prefersReduced) {
-      // Static state for reduced motion
+    if (isReducedMotion) {
+      // Simple fade for reduced motion
+      gsap.fromTo(el, 
+        { opacity: 0 }, 
+        { opacity: 1, duration: 1, ease: "power2.out" }
+      );
       gsap.set(logo, { scale: 1, letterSpacing: "0em", y: 0 });
       gsap.set(mask, { clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)" });
-      return;
+      return () => cleanupScrollTriggers(mm);
     }
 
     // Initial setup
@@ -63,19 +66,18 @@ export default function GTAHero({
     });
     gsap.set(mask, { clipPath: "polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)" });
 
-    // Main timeline
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: el,
-        start: "top top",
-        end: "+=200%", // 200% duration as requested
-        scrub: 1,
-        pin: true,
-        anticipatePin: 1, // Smooth handoff
-        markers: debugScroll,
-        invalidateOnRefresh: true,
-      }
-    });
+    // Main timeline with scoped context
+    mm.add("(min-width: 768px)", () => {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: el,
+          start: "top top",
+          end: "+=200%", // 200% duration as requested
+          scrub: 1,
+          pin: true,
+          invalidateOnRefresh: true,
+        }
+      });
 
     // Logo animations
     tl.to(logo, {
@@ -114,11 +116,38 @@ export default function GTAHero({
         .to(logo, { opacity: 1, duration: 0.03, ease: "none" }, 0.1);
     }
 
-    return () => {
-      tl.kill();
-      ScrollTrigger.getAll().forEach(st => st.kill());
-    };
-  }, [debugScroll, forceMotion]);
+      // Glitch effect (desktop only, once at start)
+      if (!isMobile) {
+        const glitchTl = gsap.timeline({ repeat: 0, delay: 0.2 });
+        
+        // Micro-jitter sequence
+        glitchTl
+          .to(logo, { x: 2, duration: 0.05, ease: "none" })
+          .to(logo, { x: -3, duration: 0.05, ease: "none" })
+          .to(logo, { x: 1, duration: 0.05, ease: "none" })
+          .to(logo, { x: 0, duration: 0.05, ease: "none" })
+          .to(logo, { opacity: 0.8, duration: 0.03, ease: "none" }, 0)
+          .to(logo, { opacity: 1, duration: 0.03, ease: "none" }, 0.1);
+      }
+    });
+
+    // Mobile fallback
+    mm.add("(max-width: 767px)", () => {
+      gsap.to(logo, {
+        scale: 1,
+        letterSpacing: "0em",
+        y: 0,
+        scrollTrigger: {
+          trigger: el,
+          start: "top top",
+          end: "bottom top",
+          scrub: 0.5
+        }
+      });
+    });
+
+    return () => cleanupScrollTriggers(mm);
+  }, []);
 
   useEffect(() => {
     if (!isMounted) return;
@@ -150,6 +179,7 @@ export default function GTAHero({
     <section 
       ref={root} 
       className="relative min-h-screen bg-black overflow-hidden flex items-center justify-center"
+      style={{ minHeight: "100vh" }} // Explicit height for pinning
     >
       {/* Background Media with Mask */}
       <div 
