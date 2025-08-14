@@ -1,103 +1,136 @@
-import Image from "next/image";
+"use client";
+import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
+import { ProductSize } from "@/content/product";
 
-export default function Home() {
+// Dynamic imports for better performance
+const LoadingScreen = dynamic(() => import("@/components/LoadingScreen"), { ssr: false });
+const CursorEffect = dynamic(() => import("@/components/CursorEffect"), { ssr: false });
+const MobileMenu = dynamic(() => import("@/components/MobileMenu"), { ssr: false });
+const HeroV4 = dynamic(() => import("@/components/sections/HeroV4"));
+const StoryStripV2 = dynamic(() => import("@/components/sections/StoryStripV2"));
+const LookbookRailV3 = dynamic(() => import("@/components/sections/LookbookRailV3"));
+const BackRevealV2 = dynamic(() => import("@/components/sections/BackRevealV2"));
+const OrderV2 = dynamic(() => import("@/components/sections/OrderV2"));
+const StickyOrderBar = dynamic(() => import("@/components/StickyOrderBar"));
+
+// Global window type extension for gtag
+declare global {
+  interface Window {
+    gtag?: (command: string, action: string, parameters: Record<string, unknown>) => void;
+  }
+}
+
+export default function Page() {
+  const [selectedSize, setSelectedSize] = useState<ProductSize | "">("");
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    
+    // Disable right-click on images
+    const handleContextMenu = (e: MouseEvent) => {
+      if ((e.target as HTMLElement).tagName === 'IMG') {
+        e.preventDefault();
+      }
+    };
+    
+    document.addEventListener('contextmenu', handleContextMenu);
+    
+    // Add smooth scroll behavior
+    document.documentElement.style.scrollBehavior = 'smooth';
+    
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+    };
+  }, []);
+
+  const handleOrder = () => {
+    // Scroll to order section if no size selected
+    if (!selectedSize) {
+      const orderSection = document.getElementById("order");
+      orderSection?.scrollIntoView({ behavior: "smooth" });
+      
+      // Shake the size selector
+      setTimeout(() => {
+        const sizeButtons = document.querySelector('[data-size-button]')?.parentElement;
+        sizeButtons?.classList.add("animate-shake");
+        setTimeout(() => sizeButtons?.classList.remove("animate-shake"), 400);
+      }, 800);
+      return;
+    }
+
+    // Open WhatsApp with selected size
+    const wa = (process.env.NEXT_PUBLIC_WA_NUMBER || "+971000000000").replace(/\s/g, "");
+    const message = encodeURIComponent(
+      `ZOLAR Borderline Drop - Size: ${selectedSize}\nPrice: AED 299`
+    );
+    
+    // Track event
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('event', 'wa_click', {
+        product_id: 'borderline-tee',
+        size: selectedSize,
+        source: 'sticky'
+      });
+    }
+    
+    window.open(`https://wa.me/${wa}?text=${message}`, "_blank");
+  };
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+    <>
+      {/* Loading screen */}
+      {isClient && <LoadingScreen />}
+      
+      {/* Custom cursor */}
+      {isClient && <CursorEffect />}
+      
+      {/* Mobile menu */}
+      {isClient && <MobileMenu />}
+      
+      {/* Main sections */}
+      <main className="relative">
+        <HeroV4 />
+        
+        {/* Transition divider */}
+        <div className="relative h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+        
+        <StoryStripV2 />
+        
+        {/* Transition divider */}
+        <div className="relative h-px bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent" />
+        
+        <LookbookRailV3 />
+        
+        {/* Transition divider */}
+        <div className="relative h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+        
+        <BackRevealV2 />
+        
+        {/* Transition divider */}
+        <div className="relative h-px bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent" />
+        
+        <OrderV2 />
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      
+      {/* Sticky order bar */}
+      <StickyOrderBar
+        selectedSize={selectedSize}
+        onSelectSize={setSelectedSize}
+        onOrder={handleOrder}
+      />
+      
+      {/* Noise texture overlay */}
+      <div className="fixed inset-0 pointer-events-none z-[90] opacity-[0.015]">
+        <svg width="100%" height="100%">
+          <filter id="noise">
+            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" />
+            <feColorMatrix type="saturate" values="0" />
+          </filter>
+          <rect width="100%" height="100%" filter="url(#noise)" />
+        </svg>
     </div>
+    </>
   );
 }
