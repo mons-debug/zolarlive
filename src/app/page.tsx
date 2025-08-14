@@ -8,9 +8,9 @@ const LoadingScreen = dynamic(() => import("@/components/LoadingScreen"), { ssr:
 const CursorEffect = dynamic(() => import("@/components/CursorEffect"), { ssr: false });
 const MobileMenu = dynamic(() => import("@/components/MobileMenu"), { ssr: false });
 const HeroV4 = dynamic(() => import("@/components/sections/HeroV4"));
-const StoryStripV2 = dynamic(() => import("@/components/sections/StoryStripV2"));
-const LookbookRailV3 = dynamic(() => import("@/components/sections/LookbookRailV3"));
-const BackRevealV2 = dynamic(() => import("@/components/sections/BackRevealV2"));
+const StoryStripV3 = dynamic(() => import("@/components/sections/StoryStripV3"));
+const LookbookRailV4 = dynamic(() => import("@/components/sections/LookbookRailV4"));
+const BackRevealV3 = dynamic(() => import("@/components/sections/BackRevealV3"));
 const OrderV2 = dynamic(() => import("@/components/sections/OrderV2"));
 const StickyOrderBar = dynamic(() => import("@/components/StickyOrderBar"));
 
@@ -96,17 +96,17 @@ export default function Page() {
         {/* Transition divider */}
         <div className="relative h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
         
-        <StoryStripV2 />
+        <StoryStripV3 />
         
         {/* Transition divider */}
         <div className="relative h-px bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent" />
         
-        <LookbookRailV3 />
+        <LookbookRailV4 />
         
         {/* Transition divider */}
         <div className="relative h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
         
-        <BackRevealV2 />
+        <BackRevealV3 />
         
         {/* Transition divider */}
         <div className="relative h-px bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent" />
