@@ -8,6 +8,7 @@ const LoadingScreen = dynamic(() => import("@/components/LoadingScreen"), { ssr:
 const CursorEffect = dynamic(() => import("@/components/CursorEffect"), { ssr: false });
 const MobileMenu = dynamic(() => import("@/components/MobileMenu"), { ssr: false });
 const GTAHero = dynamic(() => import("@/components/hero/GTAHero"));
+const StoryStrip = dynamic(() => import("@/components/story/StoryStrip"));
 const StoryStripV3 = dynamic(() => import("@/components/sections/StoryStripV3"));
 const LookbookRailV4 = dynamic(() => import("@/components/sections/LookbookRailV4"));
 const BackRevealV3 = dynamic(() => import("@/components/sections/BackRevealV3"));
@@ -98,6 +99,9 @@ export default function Page() {
             orderSection.scrollIntoView({ behavior: "smooth" });
           }
         }} />
+        
+        {/* Story Strip - 3 beats pinned timeline */}
+        <StoryStrip />
         
         {/* Transition divider */}
         <div className="relative h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
