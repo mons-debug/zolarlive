@@ -29,6 +29,13 @@ export default function Smooth({ children }: PropsWithChildren) {
     }
     requestAnimationFrame(raf);
 
+    // Normalize scroll AFTER mount to avoid hydration mismatch
+    try {
+      ScrollTrigger.normalizeScroll(true);
+    } catch (e) {
+      // no-op; older GSAP may not expose normalizeScroll
+    }
+
     return () => {
       lenis.destroy();
       resizeObserver.disconnect();

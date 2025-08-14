@@ -17,8 +17,8 @@ if (typeof window !== 'undefined') {
     pinSpacing: true // Prevent layout shift
   });
 
-  // Normalize scroll for better cross-browser experience
-  ScrollTrigger.normalizeScroll(true);
+  // Note: normalizeScroll must not run before hydration (it mutates <html> styles).
+  // We call it lazily inside client effects (e.g., Smooth.tsx) after mount to avoid hydration mismatch.
 
   // Refresh ScrollTrigger after images load
   window.addEventListener('load', () => {

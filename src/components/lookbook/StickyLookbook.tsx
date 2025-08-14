@@ -78,8 +78,6 @@ export default function StickyLookbook({
         end: stickDuration, // Stick for one viewport (or 80% on mobile)
         scrub: 1,
         pin: true,
-        anticipatePin: 1,
-        markers: debugScroll,
         invalidateOnRefresh: true,
         onUpdate: (self) => {
           // Update active frame based on progress
